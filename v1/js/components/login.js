@@ -48,16 +48,33 @@ export default {
       },
       methods: {
         login() {
-          // Sostituisci con la tua logica di autenticazione, ad esempio una chiamata API
-          if (this.email && this.password) {
-            // Simulazione login
-            if (this.email === 'daniele@gmail.com' && this.password === 'password') {
-              // Redirigi alla pagina desiderata dopo il login
-              this.$router.push('/collaboratore');
-            } else {
-              alert("Credenziali errate, riprova.");
-            }
+          try{
+              const response = fetch('/management-alfa/api/login.php', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ email: this.email, password: this.password })});
+      
+              const data = response.json();
+      
+              if (data && data.role && data.id_utente !== undefined) {
+                  //set Cookie per il ruolo del user
+                  Cookies.set('user_role', data.role);
+                  Cookies.set('user_id', data.id_utente);
+                  // Autenticazione riuscita, gestisci il ruolo
+                  if (data.role === 1) {
+                      window.location.href = '/admin'; // Reindirizza alla dashboard admin
+                  } else if (data.role === 0) {
+                      window.location.href = '/collaborator'; // Reindirizza alla dashboard collaborator
+                  }
+              } else {
+                  alert('Credenziali non valide. Riprova.');
+              }
+          } catch (error){
+              console.error('Errore durante il login:',error);
+              alert('Si è verificato un errore. Riprova più tardi.');
           }
         }
       }
-    };
+}; 

@@ -17,10 +17,11 @@
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $id_utente = $row['id_utente']; 
         $generatedPassword = generaPasswordCasuale();
-
+        $hashedPassword = password_hash($generatedPassword, PASSWORD_DEFAULT);
+        
         $stmt = $pdo->prepare("UPDATE utente SET password = :password WHERE id_utente = :id_utente"); 
         
-        if ($stmt->execute([':id_utente' => $id_utente, ':password' => $generatedPassword])){
+        if ($stmt->execute([':id_utente' => $id_utente, ':password' => $hashedPassword])){
             if(resetMail($email,$generatedPassword, $id_utente)){
                 echo json_encode(['success'=> true]);
             } else {

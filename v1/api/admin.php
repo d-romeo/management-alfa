@@ -2,6 +2,9 @@
 include '/home/u908685741/domains/rometimerror.it/public_html/phpmailer.php';
 include '/home/u908685741/domains/rometimerror.it/public_html/management-alfa/v1/api/db.php'; 
 header('Content-Type: application/json');
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 try {
     // Ottieni il valore dell'azione dalla query string
@@ -48,6 +51,7 @@ try {
             $compenso = $input['compenso'] ?? '';
             $pagato = isset($input['stato_pagamento']) ? 1 : 0;
             $password = "alfa2024"; //password default
+            $hasedPassword = password_hash($password, PASSWORD_DEFAULT);
             $doposcuola = isset($input['doposcuola']) ? 1 : 0;
             $ruolo = isset($input['ruolo']) ? 1 : 0;
         
@@ -58,12 +62,13 @@ try {
                 echo json_encode(['success' => false, 'message' => 'Utente già registrato.']);
                 exit; 
             }
+            
         
             // Inserimento utente
             $stmt = $pdo->prepare("INSERT INTO utente (mail, password, ruolo) VALUES (:mail, :password, :ruolo)");
             if ($stmt->execute([
                 ':mail' => $mail,
-                ':password' => password_hash($password, PASSWORD_DEFAULT),
+                ':password' => $hasedPassword,
                 ':ruolo' => $ruolo
             ])){
                 $id_utente = $pdo->lastInsertId(); // Ottieni l'ID dell'utente appena inserito
@@ -71,7 +76,6 @@ try {
                 // Inserimento collaboratore
                 $stmt = $pdo->prepare("INSERT INTO collaboratore (id_utente, nome, cognome, telefono, compenso, stato_pagamento, doposcuola) 
                                         VALUES (:id_utente, :nome, :cognome, :telefono, :compenso, :stato_pagamento, :doposcuola)");
-        
                 if ($stmt->execute([
                     ':id_utente' => $id_utente,
                     ':nome' => $nome,
@@ -79,7 +83,7 @@ try {
                     ':telefono' => $telefono,
                     ':compenso' => $compenso,
                     ':stato_pagamento' => $pagato,
-                    ':doposcuola' => $doposcuola
+                    ':doposcuola' => $doposcuola,
                 ])) {
                     if(accessMail($nome,$mail,$password)){
                         echo json_encode(['success'=> true]);

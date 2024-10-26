@@ -17,12 +17,14 @@ export default {
                   <v-text-field
                     v-model="email"
                     label="Email"
+                    :rules="[rules.required,rules.mail]" 
                     placeholder="email@example.com"
                   ></v-text-field>
                   <v-text-field
                     v-model="password"
                     label="Password"
                     type="password"
+                    :rules="[rules.required]" 
                   ></v-text-field>
                 </v-card-text>
               </v-window-item>
@@ -33,7 +35,7 @@ export default {
                 Password dimenticata?
               </v-btn>
               <v-spacer></v-spacer>
-              <v-btn color="primary" variant="flat" @click="login">
+              <v-btn color="primary" variant="flat" @click="login" :disabled="!email || !password">
                 Login
               </v-btn>
             </v-card-actions>
@@ -41,17 +43,41 @@ export default {
         </v-col>
       </v-row>
     </v-container>
+
+    <v-dialog v-model="errorMail" max-width="400">
+    <v-card>
+      <v-card-title class="headline">Errore</v-card-title>
+      <v-card-text>
+        Credenziali errate. Riprova.
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" text @click="errorMail = false">OK</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
   </v-app>
 `,
     data() {
         return {
           email: '',
           password: '',
-          step: 1
+          step: 1, 
+          errorMail: false, 
+
+          rules: {
+            required: value => !!value || 'Obbligatorio.',
+            mail: value => {
+              const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              return pattern.test(value) || 'Inserisci un’email valida.';
+            }, 
+        }
         };
       },
       methods: {
         login() {
+          this.errorMail=false; 
           try{
               fetch('/management-alfa/v1/api/login.php', {
                   method: 'POST',
@@ -82,16 +108,19 @@ export default {
                         }
                     }, 100);
                   } else {
-                      alert('Credenziali non valide. Riprova.');
+                      this.showError(); 
                   }
                 }); 
           } catch (error){
               console.error('Errore durante il login:',error);
-              alert('Si è verificato un errore. Riprova più tardi.');
+              this.showError(); 
           }
         },
         resetPassword() {
           this.$router.push('/forgot-password');
+        }, 
+        showError() {
+          this.errorMail = true; // Mostra il dialog quando si verifica un errore
         }
       }
 }; 

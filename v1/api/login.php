@@ -13,11 +13,11 @@
     $stmt->execute([':email' => $email]);
     if ($stmt->rowCount() > 0) {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        $hashPassword = $row['password']; // Primo elemento
+        $hashedPassword = $row['password']; // Primo elemento
         $ruolo = $row['ruolo'];  
         $id_utente = $row['id_utente'];
         
-        if ($hashPassword == $passwordInserita) {
+        if (password_verify($passwordInserita, $hashedPassword)) {
             // Password corretta
             echo json_encode(['success' => true, 'role' => $ruolo, 'id' => $id_utente]);
         } else {

@@ -17,7 +17,7 @@
         $ruolo = $row['ruolo'];  
         $id_utente = $row['id_utente'];
         
-        if ($hashPassword) {
+        if ($hashPassword == $passwordInserita) {
             // Password corretta
             echo json_encode(['success' => true, 'role' => $ruolo, 'id' => $id_utente]);
         } else {

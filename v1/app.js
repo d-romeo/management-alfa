@@ -1,14 +1,78 @@
 import Login from '/management-alfa/v1/js/components/login.js';
 import AdminDashboard from '/management-alfa/v1/js/components/homeAdmin.js';
-import Collaboratori from '/management-alfa/v1/js/components/collaboratori.js';
+import Collaboratori from '/management-alfa/v1/js/components/collaboratori.js'
+import CollabDashboard from '/management-alfa/v1/js/components/homeCollaboratori.js';;
+import Profilo from '/management-alfa/v1/js/components/profilo.js'; 
+import Forgot from '/management-alfa/v1/js/components/forgot.js'; 
 
+const AdminLayout = {
+  template: `
+    <v-app class="grey lighten-1">
+      <v-navigation-drawer app class="cyan darken-3" permanent :width="200">
+        <v-list color="transparent">
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title class="white--text">GESTIONALE ALFA</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-divider></v-divider>
+          <v-list-item v-for="item in menuItems" :key="item.text" @click="goToPage(item.route)">
+            <v-list-item-icon>
+              <v-icon class="white--text">{{ item.icon }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title class="white--text">{{ item.text }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+        <template v-slot:append>
+            <div class="pa-2">
+              <v-btn block @click = "logout">Logout</v-btn>
+            </div>
+          </template>
+      </v-navigation-drawer>
 
+      <v-main>
+        <v-container fluid>
+          <router-view></router-view>
+        </v-container>
+      </v-main>
+    </v-app>`,
+  data() {
+    return {
+      menuItems: [
+        { text: 'Profilo', route: '/adminDashboard', icon: 'mdi-account' },
+        { text: 'Home', route: '/adminDashboard', icon: 'mdi-home' },
+        { text: 'Collaboratori', route: '/adminDashboard/collaboratori', icon: 'mdi-account-group' },
+      ],
+    };
+  },
+  methods: {
+    goToPage(route) {
+      this.$router.push(route);
+    },
+    logout(){
+      Cookies.remove('user_role');
+      Cookies.remove('user_id');
+      this.$router.push('/'); // Reindirizza alla pagina di login o home
+    }
+  },
+};
 
 // Configurazione delle rotte
 const routes = [
     { path: '/', component: Login },
-    { path: '/admin', component: AdminDashboard, meta: { requiresAuth: true, role: 1 } },
-    { path: '/collaborator', component: Collaboratori, meta: { requiresAuth: true, role: 2 } },
+    { path: '/forgot-password', component: Forgot},
+    { path: '/adminDashboard',
+      component: AdminLayout,
+      meta: { requiresAuth: true, role: 1 },
+      children: [
+          { path: '', component: AdminDashboard }, // Carica AdminDashboard come componente figlio
+          { path: 'collaboratori', component: Collaboratori},
+          { path: 'profilo', component: Profilo}, // Carica Collaboratori come componente figlio
+      ],
+    },
+    { path: '/collaboratorDashboard', component: CollabDashboard, meta: { requiresAuth: true, role: 0 } },
   ];
   
   // Creazione del router
@@ -61,60 +125,4 @@ new Vue({
     }),
     router,
     render: h => h('router-view'), 
-    data() {
-        return {
-          menuItems: [
-            { path: '/', component: Login }, // Imposta il Login come la schermata iniziale
-            { text: 'Profilo', route: '/', icon: 'mdi-account' },  
-            { text: 'Home', route: '/', icon: 'mdi-home' },
-            { text: 'Collaboratori', route: '/collaboratori', icon: 'mdi-account-group'},
-          ],
-        };
-      },
-      methods: {
-        goToPage(route) {
-          this.$router.push(route);
-        },
-        toggleDrawer() {
-          this.drawer = !this.drawer; // Inverte lo stato del drawer
-        },
-      },
-template: 
-      ` <v-app class="grey lighten-1">
-      <v-navigation-drawer app class="cyan darken-3" permanent :width="200">
-        <v-list color="transparent">
-          <!-- Titolo del Gestionale -->
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title class="white--text">GESTIONALE ALFA</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          
-          <v-divider></v-divider>
-    
-        <!-- Voci del menu con icone -->
-        <v-list-item v-for="item in menuItems" :key="item.text" @click="goToPage(item.route)">
-          <v-list-item-icon>
-            <v-icon class="white--text">{{ item.icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title class="white--text">{{ item.text }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list>
-    
-        <template v-slot:append>
-          <div class="pa-2">
-            <v-btn block>
-              Logout
-            </v-btn>
-          </div>
-        </template>
-      </v-navigation-drawer>
-    
-      <v-main>
-        <v-container fluid>
-          <router-view></router-view>
-        </v-container>
-      </v-main>
-    </v-app>`,
-});
+}); 

@@ -1,14 +1,13 @@
-// login.js
+// forgot.js
 export default {
     template: `
-<v-app class="grey lighten-1">
+  <v-app class="grey lighten-1">
     <v-container fluid fill-height>
       <v-row align="center" justify="center">
         <v-col cols="12" md="6">
           <v-card class="mx-auto" max-width="500">
-            <v-card-title class="text-h6 font-weight-regular justify-center">
-              <v-icon left>mdi-application-settings</v-icon> <!-- Sostituisci con l'icona desiderata -->
-              <span class="ml-2">Accesso Gestionale</span> <!-- Titolo -->
+            <v-card-title class="text-h6 font-weight-regular justify-space-between">
+              <span>Login</span>
             </v-card-title>
 
             <v-window v-model="step">
@@ -19,22 +18,16 @@ export default {
                     label="Email"
                     placeholder="email@example.com"
                   ></v-text-field>
-                  <v-text-field
-                    v-model="password"
-                    label="Password"
-                    type="password"
-                  ></v-text-field>
                 </v-card-text>
               </v-window-item>
             </v-window>
 
+            <v-divider></v-divider>
+
             <v-card-actions>
-              <v-btn text @click="resetPassword">
-                Password dimenticata?
-              </v-btn>
               <v-spacer></v-spacer>
-              <v-btn color="primary" variant="flat" @click="login">
-                Login
+              <v-btn color="primary" variant="flat" @click="reset">
+                Reset
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -51,14 +44,14 @@ export default {
         };
       },
       methods: {
-        login() {
+        reset() {
           try{
-              fetch('/management-alfa/v1/api/login.php', {
+              fetch('/management-alfa/v1/api/reset.php', {
                   method: 'POST',
                   headers: {
                       'Content-Type': 'application/json'
                   },
-                  body: JSON.stringify({ email: this.email, password: this.password })
+                  body: JSON.stringify({ email: this.email})
                 }).then(response => {
                   console.log('Codice di stato:', response.status); // Stampa il codice di stato
                   if (!response.ok) {
@@ -70,28 +63,17 @@ export default {
                 })
                 .then(data => {
                   if (data.success){
-                      //set Cookie per il ruolo del user
-                      Cookies.set('user_role', data.role, { sameSite: 'Lax' });
-                      Cookies.set('user_id', data.id_utente, { sameSite: 'Lax' });
-                      // Autenticazione riuscita, gestisci il ruolo
                       setTimeout(() => {
-                        if (data.role === 1) {
-                            this.$router.push('/adminDashboard');
-                        } else if (data.role === 0) {
-                            this.$router.push('/collaboratorDashboard');
-                        }
+                            this.$router.push('/');
                     }, 100);
                   } else {
-                      alert('Credenziali non valide. Riprova.');
+                      alert('Credenziali non modificate. Riprova.');
                   }
                 }); 
           } catch (error){
-              console.error('Errore durante il login:',error);
+              console.error('Errore durante cambiamento della password:',error);
               alert('Si è verificato un errore. Riprova più tardi.');
           }
-        },
-        resetPassword() {
-          this.$router.push('/forgot-password');
         }
       }
 }; 

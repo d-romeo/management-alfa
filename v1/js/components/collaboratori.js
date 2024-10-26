@@ -349,7 +349,7 @@ created() {
 }, 
 methods: {
   fetchUsers() {
-    fetch('/test/db.php?azione=getUtenti')
+    fetch('/management-alfa/v1/api/admin.php?azione=getUtenti')
     .then(response => {
       console.log('Codice di stato:', response.status); // Stampa il codice di stato
       if (!response.ok) {
@@ -423,7 +423,7 @@ methods: {
 
 
         // Invia la richiesta per aggiornare il database
-         fetch('/test/db.php?azione=toggleDoposcuola',{
+         fetch('/management-alfa/v1/api/admin.php?azione=toggleDoposcuola',{
           method: 'POST', // O 'POST', a seconda della tua API
           headers: {
             'Content-Type': 'application/json',
@@ -453,7 +453,7 @@ methods: {
         if (!confirmation) return; // Esci se l'utente annulla
 
         try { 
-            fetch('/test/db.php?azione=deleteUser', {
+            fetch('/management-alfa/v1/api/admin.php?azione=deleteUser', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -491,7 +491,7 @@ methods: {
     if (this.$refs.form.validate()) {
       this.completed = false; 
       console.log('Dati inviati:', this.newUser); // Controlla se il campo mail è presente
-      fetch('/test/db.php?azione=addUser', {
+      fetch('/management-alfa/v1/api/admin.php?azione=addUser', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Assicurati di avere il corretto header

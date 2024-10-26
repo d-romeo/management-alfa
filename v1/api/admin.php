@@ -4,9 +4,6 @@ include '/home/u908685741/domains/rometimerror.it/public_html/management-alfa/v1
 header('Content-Type: application/json');
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
     // Ottieni il valore dell'azione dalla query string
     $azione = $_GET['azione'] ?? null;
 

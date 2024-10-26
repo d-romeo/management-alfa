@@ -49,28 +49,36 @@ export default {
       methods: {
         login() {
           try{
-              const response = fetch('/management-alfa/api/login.php', {
+              fetch('/management-alfa/v1/api/login.php', {
                   method: 'POST',
                   headers: {
                       'Content-Type': 'application/json'
                   },
-                  body: JSON.stringify({ email: this.email, password: this.password })});
-      
-              const data = response.json();
-      
-              if (data && data.role && data.id_utente !== undefined) {
-                  //set Cookie per il ruolo del user
-                  Cookies.set('user_role', data.role);
-                  Cookies.set('user_id', data.id_utente);
-                  // Autenticazione riuscita, gestisci il ruolo
-                  if (data.role === 1) {
-                      window.location.href = '/admin'; // Reindirizza alla dashboard admin
-                  } else if (data.role === 0) {
-                      window.location.href = '/collaborator'; // Reindirizza alla dashboard collaborator
+                  body: JSON.stringify({ email: this.email, password: this.password })
+                }).then(response => {
+                  console.log('Codice di stato:', response.status); // Stampa il codice di stato
+                  if (!response.ok) {
+                    const errorMessage = `Errore ${response.status}: ${response.statusText}`;
+                    console.error(errorMessage); // Stampa il messaggio di errore nel console log
+                    throw new Error(errorMessage); // Genera un errore con il messaggio personalizzato
                   }
-              } else {
-                  alert('Credenziali non valide. Riprova.');
-              }
+                  return response.json();
+                })
+                .then(data => {
+                  if (data.success){
+                      //set Cookie per il ruolo del user
+                      Cookies.set('user_role', data.role);
+                      Cookies.set('user_id', data.id_utente);
+                      // Autenticazione riuscita, gestisci il ruolo
+                      if (data.role === 1) {
+                          window.location.href = '/management-alfa/v1/admin'; // Reindirizza alla dashboard admin
+                      } else if (data.role === 0) {
+                          window.location.href = '/management-alfa/v1/collaborator'; // Reindirizza alla dashboard collaborator
+                      }
+                  } else {
+                      alert('Credenziali non valide. Riprova.');
+                  }
+                }); 
           } catch (error){
               console.error('Errore durante il login:',error);
               alert('Si è verificato un errore. Riprova più tardi.');
